@@ -48,5 +48,28 @@ It helps in **crop disease detection**, **yield prediction**, **fertilizer recom
 
 ---
 
-## 📁 Project Structure
+---
+
+## 🧩 Installation & Setup
+
+### Prerequisites
+- [Flutter SDK](https://flutter.dev/docs/get-started/install)
+- [Android Studio](https://developer.android.com/studio)
+- Git and a GitHub account
+- Firebase project configured for Android/iOS
+
+### Steps
+```bash
+# 1️⃣ Clone this repository
+git clone https://github.com/<your-username>/agrivision.git
+
+# 2️⃣ Navigate into the project folder
+cd agrivision
+
+# 3️⃣ Get Flutter dependencies
+flutter pub get
+
+# 4️⃣ Run the app
+flutter run
+
 
