@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_text_styles.dart';
 import '../../widgets/buttons/primary_button.dart';
@@ -15,9 +16,12 @@ class _LoginScreenState extends State<LoginScreen> {
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   final _nameController = TextEditingController();
+
   bool _isSignup = false;
   bool _isLoading = false;
   bool _obscurePassword = true;
+
+  final supabase = Supabase.instance.client;
 
   @override
   void dispose() {
@@ -28,16 +32,49 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   Future<void> _handleSubmit() async {
-    if (_formKey.currentState!.validate()) {
-      setState(() => _isLoading = true);
+    if (!_formKey.currentState!.validate()) return;
 
-      // TODO: Implement actual authentication
-      await Future.delayed(const Duration(seconds: 2));
+    setState(() => _isLoading = true);
 
-      if (mounted) {
-        setState(() => _isLoading = false);
-        // Navigate to home screen
+    try {
+      if (_isSignup) {
+        final response = await supabase.auth.signUp(
+          email: _emailController.text.trim(),
+          password: _passwordController.text.trim(),
+          data: {'name': _nameController.text.trim()},
+        );
+
+        if (response.user != null) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Sign up successful! Check email inbox.')),
+          );
+        }
+      } else {
+        final response = await supabase.auth.signInWithPassword(
+          email: _emailController.text.trim(),
+          password: _passwordController.text.trim(),
+        );
+
+        if (response.user != null) {
+          if (mounted) {
+            Navigator.pushReplacementNamed(context, '/home');
+          }
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text("Invalid email or password")),
+          );
+        }
       }
+    } on AuthException catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(e.message), backgroundColor: Colors.redAccent),
+      );
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Unexpected error: $e'), backgroundColor: Colors.redAccent),
+      );
+    } finally {
+      if (mounted) setState(() => _isLoading = false);
     }
   }
 
@@ -90,9 +127,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   // App Name
                   Text(
                     'AgriVision',
-                    style: AppTextStyles.display1.copyWith(
-                      color: Colors.white,
-                    ),
+                    style: AppTextStyles.display1.copyWith(color: Colors.white),
                   ),
 
                   const SizedBox(height: 8),
@@ -106,7 +141,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
                   const SizedBox(height: 48),
 
-                  // Login Card
+                  // Login / Signup Card
                   Container(
                     padding: const EdgeInsets.all(32),
                     decoration: BoxDecoration(
@@ -130,10 +165,8 @@ class _LoginScreenState extends State<LoginScreen> {
                             style: AppTextStyles.h2,
                             textAlign: TextAlign.center,
                           ),
-
                           const SizedBox(height: 32),
 
-                          // Name Field (signup only)
                           if (_isSignup) ...[
                             TextFormField(
                               controller: _nameController,
@@ -158,7 +191,6 @@ class _LoginScreenState extends State<LoginScreen> {
                             const SizedBox(height: 16),
                           ],
 
-                          // Email Field
                           TextFormField(
                             controller: _emailController,
                             keyboardType: TextInputType.emailAddress,
@@ -183,10 +215,8 @@ class _LoginScreenState extends State<LoginScreen> {
                               return null;
                             },
                           ),
-
                           const SizedBox(height: 16),
 
-                          // Password Field
                           TextFormField(
                             controller: _passwordController,
                             obscureText: _obscurePassword,
@@ -223,19 +253,15 @@ class _LoginScreenState extends State<LoginScreen> {
                               return null;
                             },
                           ),
-
                           const SizedBox(height: 24),
 
-                          // Submit Button
                           PrimaryButton(
                             text: _isSignup ? 'Create Account' : 'Sign In',
                             onPressed: _handleSubmit,
                             isLoading: _isLoading,
                           ),
-
                           const SizedBox(height: 16),
 
-                          // Toggle Sign Up / Sign In
                           TextButton(
                             onPressed: () {
                               setState(() {
@@ -258,7 +284,6 @@ class _LoginScreenState extends State<LoginScreen> {
 
                   const SizedBox(height: 32),
 
-                  // Features
                   Column(
                     children: [
                       _buildFeatureItem('Disease Detection & Diagnosis'),
@@ -281,17 +306,11 @@ class _LoginScreenState extends State<LoginScreen> {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        const Icon(
-          Icons.check_circle,
-          color: Colors.white,
-          size: 16,
-        ),
+        const Icon(Icons.check_circle, color: Colors.white, size: 16),
         const SizedBox(width: 8),
         Text(
           text,
-          style: AppTextStyles.bodySmall.copyWith(
-            color: Colors.white,
-          ),
+          style: AppTextStyles.bodySmall.copyWith(color: Colors.white),
         ),
       ],
     );

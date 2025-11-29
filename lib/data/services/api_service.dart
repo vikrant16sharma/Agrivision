@@ -1,17 +1,18 @@
-import 'package:http/http.dart' as http;
 import 'dart:convert';
+import 'package:http/http.dart' as http;
 import 'package:supabase_flutter/supabase_flutter.dart';
+
 import '../models/scan_model.dart';
 import '../models/prediction_model.dart';
+import '../../core/config/supabase_config.dart';
 
 class ApiService {
-  final String baseUrl;
   final SupabaseClient supabase;
+  final String baseUrl;
 
   ApiService({
-    required this.baseUrl,
     required this.supabase,
-  });
+  }) : baseUrl = SupabaseConfig.functionsBaseUrl;
 
   Future<Map<String, String>> _getHeaders() async {
     final session = supabase.auth.currentSession;
@@ -19,11 +20,13 @@ class ApiService {
 
     return {
       'Content-Type': 'application/json',
-      'Authorization': 'Bearer $token',
+      if (token.isNotEmpty) 'Authorization': 'Bearer $token',
     };
   }
 
+  // -----------------------------
   // Disease Scan
+  // -----------------------------
   Future<ScanModel> submitDiseaseScan({
     required String imageData,
     required String cropType,
@@ -33,7 +36,7 @@ class ApiService {
     final url = Uri.parse('$baseUrl/disease-scan');
     final headers = await _getHeaders();
 
-    final body = json.encode({
+    final body = jsonEncode({
       'imageData': imageData,
       'cropType': cropType,
       'fieldId': fieldId,
@@ -43,15 +46,18 @@ class ApiService {
     final response = await http.post(url, headers: headers, body: body);
 
     if (response.statusCode == 200) {
-      final data = json.decode(response.body);
+      final data = jsonDecode(response.body);
       return ScanModel.fromJson(data['scan']);
     } else {
-      final error = json.decode(response.body);
-      throw Exception(error['error'] ?? 'Failed to scan image');
+      final errorBody =
+      response.body.isNotEmpty ? jsonDecode(response.body) : null;
+      throw Exception(errorBody?['error'] ?? 'Failed to scan image');
     }
   }
 
+  // -----------------------------
   // Yield Prediction
+  // -----------------------------
   Future<PredictionModel> submitYieldPrediction({
     required String cropType,
     String? variety,
@@ -67,7 +73,7 @@ class ApiService {
     final url = Uri.parse('$baseUrl/yield-prediction');
     final headers = await _getHeaders();
 
-    final body = json.encode({
+    final body = jsonEncode({
       'cropType': cropType,
       'variety': variety,
       'fieldSize': fieldSize,
@@ -83,15 +89,18 @@ class ApiService {
     final response = await http.post(url, headers: headers, body: body);
 
     if (response.statusCode == 200) {
-      final data = json.decode(response.body);
+      final data = jsonDecode(response.body);
       return PredictionModel.fromJson(data['prediction']);
     } else {
-      final error = json.decode(response.body);
-      throw Exception(error['error'] ?? 'Failed to predict yield');
+      final errorBody =
+      response.body.isNotEmpty ? jsonDecode(response.body) : null;
+      throw Exception(errorBody?['error'] ?? 'Failed to predict yield');
     }
   }
 
-  // Get Scans
+  // -----------------------------
+  // Get user scans
+  // -----------------------------
   Future<List<ScanModel>> getScans() async {
     final url = Uri.parse('$baseUrl/scans');
     final headers = await _getHeaders();
@@ -99,7 +108,7 @@ class ApiService {
     final response = await http.get(url, headers: headers);
 
     if (response.statusCode == 200) {
-      final data = json.decode(response.body);
+      final data = jsonDecode(response.body);
       final scans = (data['scans'] as List)
           .map((scan) => ScanModel.fromJson(scan))
           .toList();
@@ -109,7 +118,9 @@ class ApiService {
     }
   }
 
-  // Get Predictions
+  // -----------------------------
+  // Get user predictions
+  // -----------------------------
   Future<List<PredictionModel>> getPredictions() async {
     final url = Uri.parse('$baseUrl/predictions');
     final headers = await _getHeaders();
@@ -117,7 +128,7 @@ class ApiService {
     final response = await http.get(url, headers: headers);
 
     if (response.statusCode == 200) {
-      final data = json.decode(response.body);
+      final data = jsonDecode(response.body);
       final predictions = (data['predictions'] as List)
           .map((pred) => PredictionModel.fromJson(pred))
           .toList();
@@ -127,7 +138,9 @@ class ApiService {
     }
   }
 
-  // Get Admin Scans (All scans across all users)
+  // -----------------------------
+  // Admin: get all scans
+  // -----------------------------
   Future<List<ScanModel>> getAdminScans() async {
     final url = Uri.parse('$baseUrl/admin/scans');
     final headers = await _getHeaders();
@@ -135,7 +148,7 @@ class ApiService {
     final response = await http.get(url, headers: headers);
 
     if (response.statusCode == 200) {
-      final data = json.decode(response.body);
+      final data = jsonDecode(response.body);
       final scans = (data['scans'] as List)
           .map((scan) => ScanModel.fromJson(scan))
           .toList();

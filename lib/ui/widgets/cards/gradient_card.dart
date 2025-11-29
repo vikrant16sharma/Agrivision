@@ -28,10 +28,10 @@ class GradientCard extends StatelessWidget {
         borderRadius: borderRadius ?? BorderRadius.circular(16),
         boxShadow: boxShadow ??
             [
-              BoxShadow(
+              const BoxShadow(
                 color: AppColors.shadowMedium,
                 blurRadius: 8,
-                offset: const Offset(0, 4),
+                offset: Offset(0, 4),
               ),
             ],
       ),

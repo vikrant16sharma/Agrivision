@@ -6,71 +6,69 @@ class AuthRepository {
 
   AuthRepository({required this.supabase});
 
-  // Sign Up
+  // Sign Up New User
   Future<User?> signUp({
     required String email,
     required String password,
     required String name,
   }) async {
-    // Call custom signup endpoint
-    final response = await supabase.functions.invoke(
-      'make-server-dfec6474/signup',
-      body: {
-        'email': email,
-        'password': password,
-        'name': name,
-      },
-    );
-
-    if (response.status == 200) {
-      // Now sign in
-      final authResponse = await supabase.auth.signInWithPassword(
+    try {
+      final response = await supabase.auth.signUp(
         email: email,
         password: password,
+        data: {
+          'user_metadata': {'name': name},
+        },
       );
-      return authResponse.user;
-    } else {
-      throw Exception(response.data['error'] ?? 'Signup failed');
+
+      return response.user;
+    } on AuthException catch (e) {
+      throw Exception('Auth Error: ${e.message}');
+    } catch (_) {
+      throw Exception('Sign-up failed');
     }
   }
 
-  // Sign In
+  // Sign In User
   Future<User?> signIn({
     required String email,
     required String password,
   }) async {
-    final response = await supabase.auth.signInWithPassword(
-      email: email,
-      password: password,
-    );
-    return response.user;
+    try {
+      final response = await supabase.auth.signInWithPassword(
+        email: email,
+        password: password,
+      );
+      return response.user;
+    } on AuthException catch (e) {
+      throw Exception('Auth Error: ${e.message}');
+    } catch (_) {
+      throw Exception('Sign-in failed');
+    }
   }
 
-  // Sign Out
+  // Logout User
   Future<void> signOut() async {
-    await supabase.auth.signOut();
+    await supabase.auth.signOut(scope: SignOutScope.local);
   }
 
-  // Get Current User
-  User? getCurrentUser() {
-    return supabase.auth.currentUser;
-  }
+  // Current user
+  User? getCurrentUser() => supabase.auth.currentUser;
 
-  // Get Current User as UserModel
+  // Convert to UserModel
   UserModel? getCurrentUserModel() {
     final user = supabase.auth.currentUser;
     if (user == null) return null;
 
+    final meta = user.userMetadata?['user_metadata'] ?? {};
+
     return UserModel(
       id: user.id,
       email: user.email ?? '',
-      name: user.userMetadata?['name'] ?? 'User',
-      createdAt: user.createdAt != null ? DateTime.parse(user.createdAt!) : null,
+      name: meta['name'] ?? "Farmer",
+      createdAt: DateTime.tryParse(user.createdAt ?? '') ?? DateTime.now(),
     );
   }
 
-  // Auth State Stream
-  Stream<AuthState> get authStateChanges {
-    return supabase.auth.onAuthStateChange;
-  }
+  Stream<AuthState> get authStateChanges => supabase.auth.onAuthStateChange;
 }

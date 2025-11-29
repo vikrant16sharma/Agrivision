@@ -1,57 +1,76 @@
 import 'dart:io';
-import 'dart:typed_data';
+import 'package:flutter/foundation.dart';
 import 'package:image/image.dart' as img;
 import 'dart:convert';
 
 class ImageUtils {
   /// Convert image file to base64 string
+  /// Uses compute for heavy processing to avoid UI jank
   static Future<String> imageToBase64(File imageFile) async {
     final bytes = await imageFile.readAsBytes();
+    return compute(_encodeBase64, bytes);
+  }
+
+  static String _encodeBase64(Uint8List bytes) {
     return base64Encode(bytes);
   }
 
   /// Convert image file to base64 with data URI prefix
+  /// Optimized for better performance
   static Future<String> imageToBase64DataUri(File imageFile) async {
-    final bytes = await imageFile.readAsBytes();
-    final base64String = base64Encode(bytes);
+    final base64String = await imageToBase64(imageFile);
     return 'data:image/jpeg;base64,$base64String';
   }
 
   /// Compress and resize image
+  /// Uses isolate (compute) to avoid blocking the UI thread
   static Future<File> compressImage(
       File imageFile, {
         int maxWidth = 640,
         int quality = 85,
       }) async {
-    // Read image
     final bytes = await imageFile.readAsBytes();
-    final image = img.decodeImage(bytes);
 
+    // Perform heavy image processing in background isolate
+    final compressedBytes = await compute(
+      _compressImageInIsolate,
+      _ImageCompressionParams(bytes, maxWidth, quality),
+    );
+
+    // Save to temporary file
+    final tempDir = imageFile.parent.path;
+    final tempPath = '$tempDir/compressed_${DateTime.now().millisecondsSinceEpoch}.jpg';
+    final compressedFile = File(tempPath);
+    await compressedFile.writeAsBytes(compressedBytes);
+
+    return compressedFile;
+  }
+
+  static Uint8List _compressImageInIsolate(_ImageCompressionParams params) {
+    // Decode image
+    final image = img.decodeImage(params.bytes);
     if (image == null) {
       throw Exception('Failed to decode image');
     }
 
     // Resize if needed
-    final resized = image.width > maxWidth
-        ? img.copyResize(image, width: maxWidth)
+    final resized = image.width > params.maxWidth
+        ? img.copyResize(image, width: params.maxWidth)
         : image;
 
-    // Compress
-    final compressed = img.encodeJpg(resized, quality: quality);
-
-    // Save to temporary file
-    final tempPath = '${imageFile.parent.path}/compressed_${DateTime.now().millisecondsSinceEpoch}.jpg';
-    final compressedFile = File(tempPath);
-    await compressedFile.writeAsBytes(compressed);
-
-    return compressedFile;
+    // Compress to JPEG
+    return Uint8List.fromList(img.encodeJpg(resized, quality: params.quality));
   }
 
   /// Preprocess image for ML model (224x224, normalized)
+  /// Uses isolate for CPU-intensive work
   static Future<List<List<List<double>>>> preprocessForML(File imageFile) async {
     final bytes = await imageFile.readAsBytes();
-    final image = img.decodeImage(bytes);
+    return compute(_preprocessInIsolate, bytes);
+  }
 
+  static List<List<List<double>>> _preprocessInIsolate(Uint8List bytes) {
+    final image = img.decodeImage(bytes);
     if (image == null) {
       throw Exception('Failed to decode image');
     }
@@ -60,7 +79,7 @@ class ImageUtils {
     final resized = img.copyResize(image, width: 224, height: 224);
 
     // Convert to normalized 3D array
-    final imageArray = List.generate(
+    return List.generate(
       224,
           (y) => List.generate(
         224,
@@ -74,7 +93,36 @@ class ImageUtils {
         },
       ),
     );
-
-    return imageArray;
   }
+
+  /// Get image file size in MB
+  static Future<double> getImageSizeInMB(File imageFile) async {
+    final bytes = await imageFile.length();
+    return bytes / (1024 * 1024);
+  }
+
+  /// Check if image needs compression
+  static Future<bool> needsCompression(
+      File imageFile, {
+        double maxSizeInMB = 2.0,
+        int maxWidth = 1024,
+      }) async {
+    final sizeInMB = await getImageSizeInMB(imageFile);
+    if (sizeInMB > maxSizeInMB) return true;
+
+    final bytes = await imageFile.readAsBytes();
+    final image = img.decodeImage(bytes);
+    if (image != null && image.width > maxWidth) return true;
+
+    return false;
+  }
+}
+
+/// Helper class for passing parameters to isolate
+class _ImageCompressionParams {
+  final Uint8List bytes;
+  final int maxWidth;
+  final int quality;
+
+  _ImageCompressionParams(this.bytes, this.maxWidth, this.quality);
 }

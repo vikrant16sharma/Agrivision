@@ -1,4 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import '../../../presentation/auth_provider.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
+import '../../screens/admin/admin_dashboard_screen.dart';
+import '../../screens/scan/disease_scan_screen.dart';
+import '../../screens/yield/yield_prediction_screen.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_text_styles.dart';
 import '../../widgets/cards/gradient_card.dart';
@@ -95,10 +101,28 @@ class HomeScreen extends StatelessWidget {
                   ),
                 ],
               ),
-              const Icon(
-                Icons.eco,
-                size: 48,
-                color: Colors.white70,
+              Row(
+                children: [
+                  const Icon(
+                    Icons.eco,
+                    size: 48,
+                    color: Colors.white70,
+                  ),
+                  const SizedBox(width: 12),
+
+                  // LOGOUT BUTTON
+                  IconButton(
+                    icon: const Icon(Icons.logout, color: Colors.white),
+                    onPressed: () async {
+                      final auth = Provider.of<AuthProvider>(context, listen: false);
+                      await auth.signOut();
+
+                      if (!context.mounted) return;
+                      Navigator.pushNamedAndRemoveUntil(context, '/login', (_) => false);
+                    },
+
+                  ),
+                ],
               ),
             ],
           ),
@@ -158,7 +182,12 @@ class HomeScreen extends StatelessWidget {
         subtitle: 'Capture plant photo',
         color: AppColors.primary,
         onTap: () {
-          // Navigate to scan screen
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => const DiseaseScanScreen(),
+            ),
+          );
         },
       ),
       _QuickAction(
@@ -167,16 +196,26 @@ class HomeScreen extends StatelessWidget {
         subtitle: 'Forecast harvest',
         color: AppColors.accent,
         onTap: () {
-          // Navigate to yield screen
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => const YieldPredictionScreen(),
+            ),
+          );
         },
       ),
       _QuickAction(
-        icon: Icons.history,
-        title: 'Scan History',
-        subtitle: 'View past detections',
+        icon: Icons.book,
+        title: 'Prediction',
+        subtitle: 'Yield predictions of the crops and plants',
         color: const Color(0xFF8B5CF6), // purple
         onTap: () {
-          // Navigate to history screen
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => const YieldPredictionScreen(),
+            ),
+          );
         },
       ),
       _QuickAction(
@@ -185,7 +224,12 @@ class HomeScreen extends StatelessWidget {
         subtitle: 'View system data',
         color: AppColors.warning,
         onTap: () {
-          // Navigate to admin screen
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => const AdminDashboardScreen(),
+            ),
+          );
         },
       ),
     ];
@@ -336,11 +380,11 @@ class HomeScreen extends StatelessWidget {
       decoration: BoxDecoration(
         color: AppColors.backgroundWhite,
         borderRadius: BorderRadius.circular(16),
-        boxShadow: [
+        boxShadow: const [
           BoxShadow(
             color: AppColors.shadowLight,
             blurRadius: 8,
-            offset: const Offset(0, 2),
+            offset: Offset(0, 2),
           ),
         ],
       ),

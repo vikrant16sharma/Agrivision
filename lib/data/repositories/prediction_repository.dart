@@ -6,8 +6,8 @@ class PredictionRepository {
 
   PredictionRepository({required this.apiService});
 
-  /// Submit a yield prediction
-  Future<PredictionModel> submitPrediction({
+  /// 🌾 Submit yield prediction request
+  Future<PredictionModel> submitYieldPrediction({
     required String cropType,
     String? variety,
     double? fieldSize,
@@ -16,8 +16,8 @@ class PredictionRepository {
     required double soilPH,
     required double rainfall,
     required double temperature,
-    Fertilizer? fertilizer,
     required int diseaseIncidents,
+    Fertilizer? fertilizer,
   }) async {
     return await apiService.submitYieldPrediction(
       cropType: cropType,
@@ -33,18 +33,8 @@ class PredictionRepository {
     );
   }
 
-  /// Get all predictions for the current user
+  /// 📄 Get all yield predictions
   Future<List<PredictionModel>> getPredictions() async {
     return await apiService.getPredictions();
-  }
-
-  /// Get a specific prediction by ID (from cached list)
-  Future<PredictionModel?> getPredictionById(String predictionId) async {
-    final predictions = await getPredictions();
-    try {
-      return predictions.firstWhere((pred) => pred.id == predictionId);
-    } catch (e) {
-      return null;
-    }
   }
 }

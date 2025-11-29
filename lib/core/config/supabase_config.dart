@@ -1,17 +1,11 @@
-import 'package:supabase_flutter/supabase_flutter.dart';
-
 class SupabaseConfig {
   static const String supabaseUrl =
-      'https://omtnrbsqvprkwezywbnh.supabase.co';
+      'https://fggdlxyyedjtwwpfndiv.supabase.co';
+
   static const String supabaseAnonKey =
-      'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9tdG5yYnNxdnBya3d3ZXp5d2JuaCIsInJvbGUiOiJhbm9uIiwiaWF0IjoxNzYxNzc3NzgzLCJleHAiOjIwNzczNTM3ODN9.52oU_Oz4sj_wWB9C3ciSpC4ZKvROmSIc-DZFwq82nzI';
+      'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZnZ2RseHl5ZWRqdHd3cGZuZGl2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjEyNzQ3MTAsImV4cCI6MjA3Njg1MDcxMH0.rrZXXkVaQuxCLht-hJ6z89Zbr1tQtS2EU8Fb2EHVK6A';
 
-  static Future<void> initialize() async {
-    await Supabase.initialize(
-      url: supabaseUrl,
-      anonKey: supabaseAnonKey,
-    );
-  }
-
-  static SupabaseClient get client => Supabase.instance.client;
+  /// Base URL for Edge Functions
+  static const String functionsBaseUrl =
+      '$supabaseUrl/functions/v1/make-server-dfec6474';
 }

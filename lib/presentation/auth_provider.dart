@@ -18,10 +18,22 @@ class AuthProvider extends ChangeNotifier {
   bool get isAuthenticated => _currentUser != null;
 
   /// Initialize auth state
-  void initialize() {
-    _currentUser = authRepository.getCurrentUserModel();
+  Future<void> initialize() async {
+    _isLoading = true;
     notifyListeners();
 
+    final session = Supabase.instance.client.auth.currentSession;
+
+    if (session != null) {
+      _currentUser = authRepository.getCurrentUserModel();
+    } else {
+      _currentUser = null;
+    }
+
+    _isLoading = false;
+    notifyListeners();
+
+    // 🔥 Keep your app in sync with Supabase auth state
     authRepository.authStateChanges.listen((AuthState data) {
       if (data.event == AuthChangeEvent.signedIn) {
         _currentUser = authRepository.getCurrentUserModel();
@@ -30,7 +42,7 @@ class AuthProvider extends ChangeNotifier {
       }
       notifyListeners();
     });
-}
+  }
 
   /// Sign up new user
   Future<bool> signUp({
@@ -102,16 +114,20 @@ class AuthProvider extends ChangeNotifier {
 
   /// Sign out current user
   Future<void> signOut() async {
+    _isLoading = true;
+    notifyListeners();
+
     try {
       await authRepository.signOut();
       _currentUser = null;
-      _error = null;
-      notifyListeners();
     } catch (e) {
       _error = e.toString();
-      notifyListeners();
     }
+
+    _isLoading = false;
+    notifyListeners();
   }
+
 
   /// Clear error
   void clearError() {

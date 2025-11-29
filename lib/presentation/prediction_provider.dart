@@ -35,7 +35,7 @@ class PredictionProvider extends ChangeNotifier {
     notifyListeners();
 
     try {
-      final prediction = await predictionRepository.submitPrediction(
+      final prediction = await predictionRepository.submitYieldPrediction(
         cropType: cropType,
         variety: variety,
         fieldSize: fieldSize,
