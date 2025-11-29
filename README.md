@@ -1,7 +1,7 @@
 # 🌾 AgriVision — Smart Agriculture Assistant (In Progress)
 
 AgriVision is a **multimodal Flutter application** designed to empower farmers and researchers by using **AI and data-driven insights**.  
-It helps in **crop disease detection**, **yield prediction**, **fertilizer recommendation**, and **real-time data management** — all integrated with **Firebase** for seamless cloud connectivity.
+It helps in **crop disease detection**, **yield prediction**, **fertilizer recommendation**, and **real-time data management** — all integrated with **Supabase** for seamless cloud connectivity.
 
 > 🚧 **Project Status:** In Progress (Active Development)
 
@@ -17,7 +17,7 @@ It helps in **crop disease detection**, **yield prediction**, **fertilizer recom
 - Predicts potential crop yield using ML models based on soil, weather, and crop data.  
 - Helps optimize planting and harvesting decisions.
 
-### ☁️ Firebase Integration
+### ☁️ Supabase Integration
 - User authentication (email/password, Google Sign-In).  
 - Real-time database and cloud storage for user data, crop images, and predictions.  
 - Secure and scalable backend.
@@ -40,9 +40,9 @@ It helps in **crop disease detection**, **yield prediction**, **fertilizer recom
 | Layer | Technologies |
 |-------|---------------|
 | **Frontend** | Flutter (Dart) |
-| **Backend / Cloud** | Firebase (Auth, Firestore, Storage, Cloud Functions) |
+| **Backend / Cloud** | Supabase (Auth, Bucket , Storage, Edge Functions) |
 | **AI Models** | TensorFlow, PyTorch (for disease detection and yield prediction) |
-| **Database** | Firebase Firestore / Realtime DB |
+| **Database** | Supabase store / Realtime DB |
 | **Version Control** | Git + GitHub |
 | **Tools** | Android Studio, VS Code, Postman, Colab |
 
