@@ -1,75 +1,170 @@
-# 🌾 AgriVision — Smart Agriculture Assistant (In Progress)
+🌾 AgriVision — AI-Powered Smart Agriculture System
 
-AgriVision is a **multimodal Flutter application** designed to empower farmers and researchers by using **AI and data-driven insights**.  
-It helps in **crop disease detection**, **yield prediction**, **fertilizer recommendation**, and **real-time data management** — all integrated with **Supabase** for seamless cloud connectivity.
+A complete Flutter + FastAPI + Machine Learning solution for farmers, agronomists, and researchers.
 
-> 🚧 **Project Status:** In Progress (Active Development)
+AgriVision helps users detect crop diseases, get fertilizer recommendations, and predict crop yields using advanced AI models — all delivered through a modern mobile app.
 
----
+✨ Key Features
+🟢 1. AI-Based Crop Disease Detection
 
-## 🚀 Features (Planned & In Progress)
+Upload or capture leaf images
 
-### 🌱 Crop Health & Disease Detection
-- Uses a **trained deep learning model** (CNN-based) to detect crop diseases from leaf images.  
-- Provides visual feedback and possible treatment recommendations.
+Backend ML model predicts disease + confidence
 
-### 📊 Yield Prediction
-- Predicts potential crop yield using ML models based on soil, weather, and crop data.  
-- Helps optimize planting and harvesting decisions.
+Shows treatment suggestions
 
-### ☁️ Supabase Integration
-- User authentication (email/password, Google Sign-In).  
-- Real-time database and cloud storage for user data, crop images, and predictions.  
-- Secure and scalable backend.
+🟡 2. Fertilizer Recommendation System
 
-### 🧠 AI & ML Integration
-- Models trained in **TensorFlow / PyTorch** integrated into Flutter via REST APIs or TFLite.  
-- NLP-powered insights and recommendations.
+Uses soil NPK values, crop type, and environmental factors
 
-### 💬 Smart Fertilizer Recommendation
-- Suggests fertilizer combinations based on soil nutrients, crop type, and weather conditions.
+Suggests fertilizer combinations for best crop growth
 
-### 📱 Intuitive Flutter UI
-- Clean and responsive interface.  
-- Compatible with Android and iOS.
+🔵 3. Crop Yield Prediction
 
----
+Estimates yield using soil properties, nitrogen levels, environment inputs, etc.
 
-## 🏗️ Tech Stack
+🟣 4. Flutter Mobile App
 
-| Layer | Technologies |
-|-------|---------------|
-| **Frontend** | Flutter (Dart) |
-| **Backend / Cloud** | Supabase (Auth, Bucket , Storage, Edge Functions) |
-| **AI Models** | TensorFlow, PyTorch (for disease detection and yield prediction) |
-| **Database** | Supabase store / Realtime DB |
-| **Version Control** | Git + GitHub |
-| **Tools** | Android Studio, VS Code, Postman, Colab |
+Cross-platform (Android/iOS)
 
----
+Clean UI/UX
 
----
+Real-time interaction with backend
 
-## 🧩 Installation & Setup
+🟤 5. FastAPI Backend
 
-### Prerequisites
-- [Flutter SDK](https://flutter.dev/docs/get-started/install)
-- [Android Studio](https://developer.android.com/studio)
-- Git and a GitHub account
-- Firebase project configured for Android/iOS
+ML model inference
 
-### Steps
-```bash
-# 1️⃣ Clone this repository
-git clone https://github.com/<your-username>/agrivision.git
+Preprocessing pipelines
 
-# 2️⃣ Navigate into the project folder
+REST API endpoints
+
+Fully documented at /docs
+
+🧰 Tech Stack
+Frontend (Mobile App)
+
+Flutter (Dart)
+
+Provider / Riverpod (if used)
+
+Material Design UI
+
+REST API communication
+
+Backend
+
+FastAPI
+
+Uvicorn
+
+Pydantic
+
+Python ML ecosystem
+
+Machine Learning
+
+TensorFlow / PyTorch models
+
+OpenCV / Pillow for image preprocessing
+
+NumPy / Pandas for data handling
+
+📂 Project Structure
+Agrivision/
+│
+├── agrivision/                   # Flutter Frontend
+│   ├── lib/
+│   ├── assets/
+│   └── pubspec.yaml
+│
+├── agrivision-backend/           # FastAPI Backend
+│   ├── models/                   # Stored ML model files (.h5/.pt)
+│   ├── routers/                  # API endpoints
+│   ├── utils/                    # preprocessing helpers
+│   ├── main.py                   # FastAPI entry
+│   └── requirements.txt
+│
+└── README.md
+
+🚀 Getting Started
+🔹 1. Clone the Repository
+git clone https://github.com/vikrant16sharma/Agrivision.git
+cd Agrivision
+
+📱 Frontend Setup (Flutter)
+Install Dependencies
 cd agrivision
-
-# 3️⃣ Get Flutter dependencies
 flutter pub get
 
-# 4️⃣ Run the app
+Run the App
 flutter run
 
 
+Ensure that your API base URL in Flutter code points to your backend (local or deployed).
+
+🖥️ Backend Setup (FastAPI)
+Install Dependencies
+cd agrivision-backend
+pip install -r requirements.txt
+
+Start Server
+uvicorn main:app --reload
+
+
+Backend will run on:
+
+http://127.0.0.1:8000
+
+
+Swagger documentation:
+
+http://127.0.0.1:8000/docs
+
+📡 API Endpoints (FastAPI)
+Endpoint	Method	Purpose
+/predict-disease	POST	Predict crop disease from image
+/predict-yield	POST	Estimate crop yield from inputs
+/recommend-fertilizer	POST	Suggest fertilizer based on soil data
+🔧 Architecture Overview
+          ┌───────────────────┐
+          │   Flutter App     │
+          │  (Frontend UI)    │
+          └───────▲───────────┘
+                  │
+        REST API Calls (JSON/Image)
+                  │
+          ┌───────▼───────────┐
+          │   FastAPI Server   │
+          │ (Backend Logic)    │
+          └───────▲───────────┘
+                  │
+       ML Inference & Processing
+                  │
+          ┌───────▼───────────┐
+          │  ML Models (CNN)   │
+          │  Yield Predictor   │
+          │  Recommendation     │
+          └────────────────────┘
+
+🛣️ Future Enhancements
+
+Offline TFLite support in mobile app
+
+Deploy backend on Render/EC2
+
+Add multilingual support
+
+Add chat-based agronomy assistant
+
+Weather-integrated predictions
+
+🤝 Contributing
+
+Fork the repo
+
+Create your feature branch
+
+Commit changes
+
+Open a pull request
